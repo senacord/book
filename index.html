@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://rawcdn.githack.com/blasten/turn.js/master/turn.min.js"></script>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; }
+        #wrapper { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; position: relative; }
+        #flipbook .page { width: 100%; height: 100%; background-size: contain; background-position: center; background-repeat: no-repeat; background-color: #fff; }
+        .click-zone { position: absolute; top: 0; bottom: 0; width: 50%; z-index: 999; cursor: pointer; }
+        #left-zone { left: 0; }
+        #right-zone { right: 0; }
+    </style>
+</head>
+<body>
+    <div id="wrapper">
+        <div id="left-zone" class="click-zone"></div>
+        <div id="right-zone" class="click-zone"></div>
+        <div id="flipbook">
+            <div class="page" style="background-image:url('pages/1.png');"></div>
+            <div class="page" style="background-image:url('pages/2.png');"></div>
+            <div class="page" style="background-image:url('pages/3.png');"></div>
+            <div class="page" style="background-image:url('pages/4.png');"></div>
+            <div class="page" style="background-image:url('pages/5.png');"></div>
+        </div>
+    </div>
+    <script>
+        $(window).ready(function() {
+            var flipbook = $("#flipbook");
+
+            function isMobile() {
+                return $(window).width() < 600;
+            }
+
+            function getSize() {
+                var w = $(window).width();
+                var h = $(window).height();
+                
+                // Jeśli mobile, proporcja pionowa (np. 1 strona), jeśli desktop - pozioma (2 strony)
+                var ratio = isMobile() ? (500 / 650) : (1000 / 650);
+                
+                var bw = w;
+                var bh = w / ratio;
+
+                if (bh > h) {
+                    bh = h;
+                    bw = h * ratio;
+                }
+                return { width: bw, height: bh };
+            }
+
+            var s = getSize();
+
+            flipbook.turn({
+                width: s.width,
+                height: s.height,
+                autoCenter: true,
+                duration: 1000,
+                gradients: true,
+                display: isMobile() ? 'single' : 'double' // KLUCZOWA ZMIANA
+            });
+
+            $('#left-zone').on('click', function() { flipbook.turn('previous'); });
+            $('#right-zone').on('click', function() { flipbook.turn('next'); });
+
+            $(window).resize(function() {
+                var s = getSize();
+                // Przełączanie trybu w locie przy obracaniu ekranu
+                flipbook.turn('display', isMobile() ? 'single' : 'double');
+                flipbook.turn('size', s.width, s.height);
+            });
+        });
+    </script>
+</body>
+</html>
